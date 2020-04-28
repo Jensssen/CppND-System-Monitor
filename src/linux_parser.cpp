@@ -214,10 +214,6 @@ string LinuxParser::User(int pid) {
       std::replace(line.begin(), line.end(), ':', ' ');
       std::istringstream linestream(line);
       while (linestream >> key >> x >> value) {
-        if (pid == 27001){
-          std::cout << uid;
-
-        }
         if (key == uid) {
           return value;
         }
