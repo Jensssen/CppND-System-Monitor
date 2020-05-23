@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include "format.h"
-#include <iostream>
 #include "linux_parser.h"
 
 using std::stof;
@@ -126,7 +125,7 @@ long LinuxParser::UpTime() {
   }
   return 0; }
 
-// TODO: Read and return CPU utilization
+// DONE: Read and return CPU utilization
 vector<float> LinuxParser::CpuUtilization() {
   string line, key, value;
   vector<float> cpuUtil;
@@ -135,7 +134,7 @@ vector<float> LinuxParser::CpuUtilization() {
     std::getline(stream, line);
     std::istringstream linestream(line);
     while (linestream >> key) {
-      if (key == "cpu") { // TODO: Replace all strings with consts
+      if (key == "cpu") {
         while (linestream >> value) {
           cpuUtil.emplace_back(std::stof(value));
         }
@@ -179,7 +178,7 @@ int LinuxParser::RunningProcesses() {
   return getValueFromKey<int>(kProcDirectory + kStatFilename, "procs_running");
 }
 
-// TODO: Read and return the command associated with a process
+// DONE: Read and return the command associated with a process
 string LinuxParser::Command(int pid) {
   string line;
   string cmd;
@@ -206,7 +205,7 @@ string LinuxParser::Uid(int pid) {
     return getValueFromKey<std::string>(kProcDirectory + std::to_string(pid) + kStatusFilename, "Uid:");
 }
 
-// TODO: Read and return the user associated with a process
+// DONE: Read and return the user associated with a process
 string LinuxParser::User(int pid) {
   string line;
   string key;
