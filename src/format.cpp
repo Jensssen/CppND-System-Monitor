@@ -11,7 +11,15 @@ string Format::ElapsedTime(long seconds) {
   long s = seconds % 60;
   long m = (seconds / 60) % 60;
   long h = (seconds / (60 * 60)) % 24;
-  return std::to_string(h) + ":" + std::to_string(m) + ":" + std::to_string(s);
+  string mString = std::to_string(m);
+  string sString = std::to_string(s);
+  if(m <= 9){
+    mString = "0" + mString;
+  }
+  if(s <= 9){
+    sString = "0" + sString;
+  }
+  return std::to_string(h) + ":" + mString + ":" + sString;
 }
 
 string Format::kbToMb(int kb){

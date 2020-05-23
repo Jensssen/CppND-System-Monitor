@@ -6,12 +6,9 @@
 class Processor {
  public:
 
-  float Utilization();  // TODO: See src/processor.cpp
+  float Utilization();
 
-  // TODO: Declare any necessary private members
  private:
-  float cpuUtil_;
-
   int kUser_ = 0;
   int kNice_ = 0;
   int kSystem_ = 0;

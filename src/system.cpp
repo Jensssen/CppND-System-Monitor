@@ -31,8 +31,9 @@ vector<Process>& System::Processes() {
     string pCMD = LinuxParser::Command(pID);
     long pUpTime = LinuxParser::UpTime(pID);
     string user = LinuxParser::User(pID);
+    float cpuUsage = LinuxParser::CpuUtilization(pID);
 
-    Process process(pID, pRAM, pCMD, pUpTime, user);
+    Process process(pID, pRAM, pCMD, pUpTime, user, cpuUsage);
 
     processes_.push_back(process);
   }

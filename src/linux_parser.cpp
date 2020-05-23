@@ -86,7 +86,7 @@ vector<int> LinuxParser::Pids() {
   return pids;
 }
 
-// TODO: Read and return the system memory utilization Is calculation correct?!?
+// DONE: Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() {
   string line;
   string key;
@@ -126,21 +126,6 @@ long LinuxParser::UpTime() {
   }
   return 0; }
 
-// TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() {
-  long systemUpTime = LinuxParser::UpTime();
-  return systemUpTime * sysconf(_SC_CLK_TCK); }
-
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid [[maybe_unused]]) { return 0; }
-
-// TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
-
-// TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
-
 // TODO: Read and return CPU utilization
 vector<float> LinuxParser::CpuUtilization() {
   string line, key, value;
@@ -160,6 +145,30 @@ vector<float> LinuxParser::CpuUtilization() {
   return cpuUtil;
 }
 
+float LinuxParser::CpuUtilization(int pid) {
+  string line, value;
+  vector<std::string> cpuUtil;
+  std::ifstream stream(kProcDirectory +std::to_string(pid) + kStatFilename);
+  if (stream.is_open()) {
+    std::getline(stream, line);
+    std::istringstream linestream(line);
+    while (linestream >> value) {
+          cpuUtil.emplace_back(value);
+    }
+  }
+  float hertz = sysconf(_SC_CLK_TCK);
+  float utime = std::stof(cpuUtil[13]);
+  float stime = std::stof(cpuUtil[14]);
+  float cutime = std::stof(cpuUtil[15]);
+  float cstime = std::stof(cpuUtil[16]);
+  float starttime = std::stof(cpuUtil[21]) / hertz; // Starttime of the process in seconds
+  long upTime = UpTime(); // Time how long the PC is running in seconds
+
+  float seconds = upTime - starttime; // Time, how long the process is already running
+  float total_time = utime + stime + cutime + cstime;
+  return (total_time / hertz) / seconds;
+}
+
 // DONE: Read and return the total number of processes
 int LinuxParser::TotalProcesses() {
   return getValueFromKey<int>(kProcDirectory + kStatFilename, "processes");
@@ -171,7 +180,6 @@ int LinuxParser::RunningProcesses() {
 }
 
 // TODO: Read and return the command associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Command(int pid) {
   string line;
   string cmd;
@@ -187,17 +195,13 @@ string LinuxParser::Command(int pid) {
   }
   return string(); }
 
-// TODO: Read and return the memory used by a process
+// DONE: Read and return the memory used by a process
 string LinuxParser::Ram(int pid ) {
   string ram = getValueFromKey<std::string>(kProcDirectory + std::to_string(pid) + kStatusFilename, "VmSize:");
-  if (pid == 3290){
-    string ram = getValueFromKey<std::string>(kProcDirectory + std::to_string(pid) + kStatusFilename, "VmSize:");
-  }
-
   return Format::kbToMb(std::stoi(ram));
 }
 
-// TODO: Read and return the user ID associated with a process
+// DONE: Read and return the user ID associated with a process
 string LinuxParser::Uid(int pid) {
     return getValueFromKey<std::string>(kProcDirectory + std::to_string(pid) + kStatusFilename, "Uid:");
 }
@@ -223,7 +227,7 @@ string LinuxParser::User(int pid) {
   return string();
 }
 
-// TODO: Read and return the uptime of a process
+// Done: Read and return the uptime of a process
 long LinuxParser::UpTime(int pid) {
   string line, value;
   std::ifstream stream(kProcDirectory + std::to_string(pid) + kStatFilename);
@@ -234,10 +238,11 @@ long LinuxParser::UpTime(int pid) {
     while (linestream >> value)
     {
       if(i == 21){
-        return std::stol(value) / sysconf(_SC_CLK_TCK);
+          return UpTime() - (std::stol(value) / sysconf(_SC_CLK_TCK));
       }else{
         i++;
       }
     }
   }
-  return 0; }
+  return 0;
+}
