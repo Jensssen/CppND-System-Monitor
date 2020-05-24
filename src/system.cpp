@@ -17,10 +17,8 @@ Processor& System::Cpu() {
   return cpu_; }
 
 bool compareProcesses(Process& p1, Process& p2) {
-  int p1_ram = std::stoi(p1.Ram());
-  int p2_ram = std::stoi(p2.Ram());
-  return (p1_ram > p2_ram);
-};
+  return (p2 < p1);
+}
 
 // DONE: Return a container composed of the system's processes
 vector<Process>& System::Processes() {
