@@ -21,11 +21,13 @@ T getValueFromKey(string const &filePath, string const &filterKey){
       std::istringstream linestream(line);
       while (linestream >> key >> value) {
         if (key == filterKey) {
+          filestream.close();
           return value;
         }
       }
     }
   }
+  filestream.close();
   return value;
 }
 
@@ -44,11 +46,13 @@ string LinuxParser::OperatingSystem() {
       while (linestream >> key >> value) {
         if (key == "PRETTY_NAME") {
           std::replace(value.begin(), value.end(), '_', ' ');
+          filestream.close();
           return value;
         }
       }
     }
   }
+  filestream.close();
   return value;
 }
 
@@ -62,6 +66,7 @@ string LinuxParser::Kernel() {
     std::istringstream linestream(line);
     linestream >> os >> version >> kernel;
   }
+  stream.close();
   return kernel;
 }
 
@@ -90,7 +95,7 @@ float LinuxParser::MemoryUtilization() {
   string line;
   string key;
   string value;
-  float memTotal;
+  float memTotal = 0.001;
   std::ifstream filestream(kProcDirectory + kMeminfoFilename);
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
@@ -101,11 +106,13 @@ float LinuxParser::MemoryUtilization() {
           memTotal = std::stof(value);
         }
         if (key == "MemFree") {
+          filestream.close();
           return (memTotal - std::stof(value)) / memTotal;
         }
       }
     }
   }
+  filestream.close();
   return 0.0;
 }
 
@@ -123,6 +130,7 @@ long LinuxParser::UpTime() {
       }
     }
   }
+  filestream.close();
   return 0; }
 
 // DONE: Read and return CPU utilization
@@ -141,6 +149,7 @@ vector<float> LinuxParser::CpuUtilization() {
       }
     }
   }
+  stream.close();
   return cpuUtil;
 }
 
@@ -165,6 +174,7 @@ float LinuxParser::CpuUtilization(int pid) {
 
   float seconds = upTime - starttime; // Time, how long the process is already running
   float total_time = utime + stime + cutime + cstime;
+  stream.close();
   return (total_time / hertz) / seconds;
 }
 
@@ -188,10 +198,12 @@ string LinuxParser::Command(int pid) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
       while (linestream >> cmd) {
+          filestream.close();
           return cmd;
       }
     }
   }
+  filestream.close();
   return string(); }
 
 // DONE: Read and return the memory used by a process
@@ -218,11 +230,13 @@ string LinuxParser::User(int pid) {
       std::istringstream linestream(line);
       while (linestream >> key >> x >> value) {
         if (key == uid) {
+          filestream.close();
           return value;
         }
       }
     }
   }
+  filestream.close();
   return string();
 }
 
@@ -237,11 +251,13 @@ long LinuxParser::UpTime(int pid) {
     while (linestream >> value)
     {
       if(i == 21){
+          stream.close();
           return UpTime() - (std::stol(value) / sysconf(_SC_CLK_TCK));
       }else{
         i++;
       }
     }
   }
+  stream.close();
   return 0;
 }
